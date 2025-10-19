@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derren Kalkulator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f7f6;
+        }
+
+        .kalkulator {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .kalkulator h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        #display {
+            width: 100%;
+            height: 60px;
+            background-color: #222;
+            color: #fff;
+            font-size: 2.5em;
+            text-align: right;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 20px 0;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: bold;
+        }
+
+        /* Tombol Angka dan Titik */
+        .btn-number {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        /* Tombol Operasi */
+        .btn-operator {
+            background-color: #ff9500;
+            color: white;
+        }
+
+        /* Tombol Clear (AC) */
+        .btn-clear {
+            background-color: #ff3b30;
+            color: white;
+        }
+
+        /* Tombol Sama Dengan (=) */
+        .btn-equal {
+            background-color: #4cd964;
+            color: white;
+            grid-column: span 2; /* Mencakup 2 kolom */
+        }
+
+        /* Hover Effect */
+        .btn-number:hover { background-color: #d1d1d1; }
+        .btn-operator:hover { background-color: #e68a00; }
+        .btn-clear:hover { background-color: #cc3333; }
+        .btn-equal:hover { background-color: #42c057; }
+    </style>
+</head>
+<body>
+
+    <div class="kalkulator">
+        <h2>Derren Kalkulator</h2>
+        <input type="text" id="display" readonly value="0">
+        
+        <div class="buttons-grid">
+            <button class="btn btn-clear" onclick="clearDisplay()">AC</button>
+            <button class="btn btn-operator" onclick="appendOperator('/')">/</button>
+            <button class="btn btn-operator" onclick="appendOperator('*')">x</button>
+            <button class="btn btn-number" onclick="appendNumber(7)">7</button>
+            <button class="btn btn-number" onclick="appendNumber(8)">8</button>
+            <button class="btn btn-number" onclick="appendNumber(9)">9</button>
+            <button class="btn btn-operator" onclick="appendOperator('-')">-</button>
+            <button class="btn btn-number" onclick="appendNumber(4)">4</button>
+            <button class="btn btn-number" onclick="appendNumber(5)">5</button>
+            <button class="btn btn-number" onclick="appendNumber(6)">6</button>
+            <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+            <button class="btn btn-number" onclick="appendNumber(1)">1</button>
+            <button class="btn btn-number" onclick="appendNumber(2)">2</button>
+            <button class="btn btn-number" onclick="appendNumber(3)">3</button>
+            <button class="btn btn-equal" onclick="calculateResult()">=</button>
+            <button class="btn btn-number" onclick="appendNumber(0)">0</button>
+            <button class="btn btn-number" onclick="appendDecimal()">.</button>
+            <button class="btn btn-operator" onclick="removeLast()">DEL</button> 
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        let currentInput = '';
+        let resultCalculated = false;
+
+        // Fungsi untuk membersihkan tampilan
+        function clearDisplay() {
+            currentInput = '';
+            display.value = '0';
+            resultCalculated = false;
+        }
+
+        // Fungsi untuk menambahkan angka
+        function appendNumber(number) {
+            if (resultCalculated) {
+                currentInput = String(number);
+                resultCalculated = false;
+            } else {
+                if (currentInput === '0' && number !== 0) {
+                    currentInput = String(number);
+                } else if (currentInput !== '0' || number !== 0) {
+                    currentInput += String(number);
+                }
+            }
+            display.value = currentInput;
+        }
+
+        // Fungsi untuk menambahkan operator
+        function appendOperator(operator) {
+            // Jika hasil sudah dihitung, gunakan hasil itu sebagai input pertama
+            if (resultCalculated) {
+                currentInput = display.value;
+                resultCalculated = false;
+            }
+
+            const lastChar = currentInput.slice(-1);
+            // Mencegah dua operator berurutan atau operator di awal (kecuali minus)
+            if ('+-*/'.includes(lastChar)) {
+                // Ganti operator lama dengan yang baru
+                currentInput = currentInput.slice(0, -1) + operator;
+            } else if (currentInput !== '') {
+                currentInput += operator;
+            } else if (operator === '-') {
+                // Memungkinkan minus di awal untuk angka negatif
+                currentInput += operator;
+            }
+            display.value = currentInput;
+        }
+
+        // Fungsi untuk menambahkan titik desimal
+        function appendDecimal() {
+            if (resultCalculated) {
+                currentInput = '0.';
+                resultCalculated = false;
+            } else if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+            display.value = currentInput;
+        }
+
+        // Fungsi untuk menghapus karakter terakhir
+        function removeLast() {
+             if (resultCalculated) {
+                clearDisplay();
+                return;
+            }
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === '') {
+                display.value = '0';
+            } else {
+                display.value = currentInput;
+            }
+        }
+
+
+        // Fungsi untuk menghitung hasil
+        function calculateResult() {
+            try {
+                // Menggunakan fungsi eval() untuk perhitungan sederhana
+                // Perlu diingat: eval() bisa berbahaya jika inputnya tidak dikontrol, 
+                // tetapi aman untuk kalkulator dasar ini.
+                const result = eval(currentInput);
+                
+                // Memformat hasil agar memiliki maksimal 10 angka desimal
+                const formattedResult = Number(result).toFixed(10).replace(/\.?0+$/, ''); 
+
+                display.value = formattedResult;
+                currentInput = formattedResult;
+                resultCalculated = true;
+
+            } catch (error) {
+                display.value = 'Error';
+                currentInput = '';
+                resultCalculated = true;
+            }
+        }
+
+        // Set display awal ke 0 saat dimuat
+        clearDisplay();
+
+    </script>
+</body>
+</html>
